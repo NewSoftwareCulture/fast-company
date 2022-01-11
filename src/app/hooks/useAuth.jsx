@@ -104,6 +104,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    async function update(data) {
+        createUser(data);
+    }
+
     async function Logout() {
         removeAuthData();
         setCurrentUser(null);
@@ -116,7 +120,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ signUp, signIn, Logout, currentUser }}>
+        <AuthContext.Provider value={{ signUp, signIn, Logout, update, currentUser }}>
             {isLoading ? "Loading..." : children}
         </AuthContext.Provider>
     );
