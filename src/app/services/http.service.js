@@ -1,17 +1,47 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 import { toast } from "react-toastify";
 import configFile from "../config.json";
+import { httpAuth } from "../hooks/useAuth";
+import { getAccessToken, getRefreshToken, getExpiresDateToken, setTokens } from "./localStorage.service";
 
 const http = axios.create({
     baseURL: configFile.apiEndpoint
 });
 
+const httpSecure = axios.create({
+    baseURL: "https://securetoken.googleapis.com/v1/",
+    params: {
+        key: process.env.REACT_APP_FIREBASE_KEY
+    }
+});
+
 http.interceptors.request.use(
-    function (config) {
+    async function (config) {
         if (configFile.isFireBase) {
             const containSlash = /\/$/gi.test(config.url);
             config.url =
                 (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
+
+            const expiresDate = getExpiresDateToken();
+            const refreshToken = getRefreshToken();
+
+            if (refreshToken && expiresDate < Date.now) {
+                const { data } = await httpSecure.post("token", {
+                    grant_type: "refresh_token",
+                    refresh_token: refreshToken
+                });
+                setTokens({
+                    refreshToken: data.refresh_token,
+                    idToken: data.id_token,
+                    expiresIn: data.expires_in,
+                    localId: data.user_id
+                });
+            }
+            const accessToken = getAccessToken();
+            if (accessToken) {
+                config.params = { ...config.params, auth: accessToken };
+            }
         }
         return config;
     },

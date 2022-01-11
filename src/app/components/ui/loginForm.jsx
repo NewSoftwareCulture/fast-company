@@ -4,6 +4,7 @@ import TextField from "../common/form/textField";
 import CheckBoxField from "../common/form/checkBoxField";
 import { useAuth } from "../../hooks/useAuth";
 import { useHistory } from "react-router-dom";
+import get from "lodash/get";
 
 const LoginForm = () => {
     const history = useHistory();
@@ -66,7 +67,8 @@ const LoginForm = () => {
 
         try {
             await signIn(data);
-            history.push("/");
+            const path = get(history, "location.state.from.pathname", "/");
+            history.push(path);
         } catch (error) {
             setErrors(error);
         }

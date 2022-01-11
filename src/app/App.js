@@ -3,12 +3,14 @@ import { Route, Switch, Redirect } from "react-router-dom";
 
 import Users from "./layouts/users";
 import Login from "./layouts/login";
+import Logout from "./layouts/logout";
 import Main from "./layouts/main";
 import NavBar from "./components/ui/navBar";
 import { ToastContainer } from "react-toastify";
 import { ProfessionProvider } from "./hooks/useProfession";
 import { QualitiesProvider } from "./hooks/useQualities";
 import { AuthProvider } from "./hooks/useAuth";
+import { ProtectedRoute } from "./components/common/protectedRoute";
 
 export function App() {
     return (
@@ -18,11 +20,12 @@ export function App() {
                 <QualitiesProvider>
                     <ProfessionProvider>
                         <Switch>
-                            <Route
+                            <ProtectedRoute
                                 path="/users/:userId?/:edit?"
                                 component={Users}
                             />
                             <Route path="/login/:type?" component={Login} />
+                            <Route path="/logout" exact component={Logout} />
                             <Route path="/" exact component={Main} />
                             <Redirect to="/" />
                         </Switch>

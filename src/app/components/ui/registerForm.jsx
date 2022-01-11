@@ -15,6 +15,7 @@ const transformData = (data) => data.map((d) => ({ label: d.name, value: d._id }
 const RegisterForm = () => {
     const history = useHistory();
     const [data, setData] = useState({
+        name: "",
         email: "",
         password: "",
         profession: "",
@@ -37,6 +38,11 @@ const RegisterForm = () => {
         }));
     };
     const validatorConfog = {
+        name: {
+            isRequired: {
+                message: "Имя обязательно для заполнения"
+            }
+        },
         email: {
             isRequired: {
                 message: "Электронная почта обязательна для заполнения"
@@ -98,6 +104,13 @@ const RegisterForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
+            <TextField
+                label="Имя"
+                name="name"
+                value={data.name}
+                onChange={handleChange}
+                error={errors.name}
+            />
             <TextField
                 label="Электронная почта"
                 name="email"
