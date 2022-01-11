@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const UserContext = React.createContext();
 
-export const useUser = () => {
+export const useUsers = () => {
     return useContext(UserContext);
 };
 
