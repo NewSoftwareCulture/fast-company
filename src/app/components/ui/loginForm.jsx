@@ -2,20 +2,18 @@ import React, { useEffect, useState } from "react";
 import { validator } from "../../utils/validator";
 import TextField from "../common/form/textField";
 import CheckBoxField from "../common/form/checkBoxField";
-import { useAuth } from "../../hooks/useAuth";
-import { useHistory } from "react-router-dom";
-import get from "lodash/get";
+import { useDispatch, useSelector } from "react-redux";
+import { getAuthErrors, signIn } from "../../store/users";
 
 const LoginForm = () => {
-    const history = useHistory();
+    const dispatch = useDispatch();
     const [data, setData] = useState({
         email: "",
         password: "",
         stayOn: false
     });
+    const loginError = useSelector(getAuthErrors());
     const [errors, setErrors] = useState({});
-
-    const { signIn } = useAuth();
 
     const handleChange = (target) => {
         setData((prevState) => ({
@@ -65,13 +63,7 @@ const LoginForm = () => {
         const isValid = validate();
         if (!isValid) return;
 
-        try {
-            await signIn(data);
-            const path = get(history, "location.state.from.pathname", "/");
-            history.push(path);
-        } catch (error) {
-            setErrors(error);
-        }
+        dispatch(signIn(data));
     };
     return (
         <form onSubmit={handleSubmit}>
@@ -97,6 +89,7 @@ const LoginForm = () => {
             >
                 Оставаться в системе
             </CheckBoxField>
+            {loginError && <p className="text-danger">{loginError}</p>}
             <button
                 type="submit"
                 disabled={!isValid}

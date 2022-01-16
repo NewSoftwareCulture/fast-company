@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { validator } from "../../utils/validator";
 import TextField from "../common/form/textField";
@@ -5,15 +6,15 @@ import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radio.Field";
 import MultiSelectField from "../common/form/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
-import { useQualities } from "../../hooks/useQualities";
-import { useProfessions } from "../../hooks/useProfession";
-import { useAuth } from "../../hooks/useAuth";
-import { useHistory } from "react-router-dom";
+import { getQualities } from "../../store/qualities";
+import { useSelector, useDispatch } from "react-redux";
+import { getProfessions } from "../../store/professions";
+import { signUp } from "../../store/users";
 
 const transformData = (data) => data.map((d) => ({ label: d.name, value: d._id }));
 
 const RegisterForm = () => {
-    const history = useHistory();
+    const dispatch = useDispatch();
     const [data, setData] = useState({
         name: "",
         email: "",
@@ -23,9 +24,9 @@ const RegisterForm = () => {
         qualities: [],
         licence: false
     });
-    const { qualities } = useQualities();
-    const { professions } = useProfessions();
-    const { signUp } = useAuth();
+    const qualities = useSelector(getQualities());
+    const professions = useSelector(getProfessions());
+
     const [errors, setErrors] = useState({});
 
     const qualitiesList = transformData(qualities);
@@ -94,12 +95,7 @@ const RegisterForm = () => {
         if (!isValid) return;
         const newData = { ...data, qualities: data.qualities.map((q) => q.value) };
 
-        try {
-            await signUp(newData);
-            history.push("/");
-        } catch (error) {
-            setErrors(error);
-        }
+        dispatch(signUp(newData));
     };
 
     return (

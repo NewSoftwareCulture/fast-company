@@ -6,14 +6,16 @@ import GroupList from "../../common/groupList";
 import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
-import { useUsers } from "../../../hooks/useUsers";
-import { useProfessions } from "../../../hooks/useProfession";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { getProfessionLoadingStatus, getProfessions } from "../../../store/professions";
+import { getCurrentUserId, getUsers, getUsersLoadingStatus } from "../../../store/users";
 
 const UsersListPage = () => {
-    const { users } = useUsers();
-    const { currentUser } = useAuth();
-    const { isLoading: professionsLoading, professions } = useProfessions();
+    const currentUserId = useSelector(getCurrentUserId());
+    const usersLoading = useSelector(getUsersLoadingStatus());
+    const professionsLoading = useSelector(getProfessionLoadingStatus());
+    const users = useSelector(getUsers());
+    const professions = useSelector(getProfessions());
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedProf, setSelectedProf] = useState();
@@ -66,11 +68,13 @@ const UsersListPage = () => {
         ? data.filter(
               (user) =>
                   JSON.stringify(user.profession) ===
-                  JSON.stringify(selectedProf)
+                  JSON.stringify(selectedProf._id)
           )
         : data;
-        return filteredUsers.filter(({ _id }) => _id !== currentUser._id);
+        return filteredUsers.filter(({ _id }) => _id !== currentUserId);
     }
+
+    if (usersLoading) return "Loading";
 
     const filteredUsers = filterUsers(users);
     const count = filteredUsers.length;
@@ -82,7 +86,7 @@ const UsersListPage = () => {
 
     return (
         <div className="d-flex">
-            {professions && professionsLoading && (
+            {professions && !professionsLoading && (
                 <div className="d-flex flex-column flex-shrink-0 p-3">
                     <GroupList
                         selectedItem={selectedProf}

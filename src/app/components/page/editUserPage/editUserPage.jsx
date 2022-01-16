@@ -6,23 +6,27 @@ import SelectField from "../../common/form/selectField";
 import RadioField from "../../common/form/radio.Field";
 import MultiSelectField from "../../common/form/multiSelectField";
 import BackHistoryButton from "../../common/backButton";
-import { useProfessions } from "../../../hooks/useProfession";
-import { useQualities } from "../../../hooks/useQualities";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector, useDispatch } from "react-redux";
+import { getQualities, getQualitiesLoadingStatus } from "../../../store/qualities";
+import { getProfessionLoadingStatus, getProfessions } from "../../../store/professions";
+import { getCurrentUser, update } from "../../../store/users";
 
 const EditUserPage = () => {
+    const dispatch = useDispatch();
     const { userId } = useParams();
-    const { currentUser, update } = useAuth();
+    const currentUser = useSelector(getCurrentUser());
     const history = useHistory();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState(currentUser);
 
-    const { professions, isLoading: isLoadProf } = useProfessions();
-    const { qualities, isLoading: isLoadQual } = useQualities();
+    const qualities = useSelector(getQualities());
+    const isLoadQual = useSelector(getQualitiesLoadingStatus());
+    const professions = useSelector(getProfessions());
+    const isLoadProf = useSelector(getProfessionLoadingStatus());
 
     const [errors, setErrors] = useState({});
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
@@ -30,10 +34,7 @@ const EditUserPage = () => {
         const { qualities: quals, ...userData } = data;
         const userQualities = quals.map(({ value }) => value);
 
-        await update({
-            ...userData,
-            qualities: userQualities
-        });
+        dispatch(update({ ...userData, qualities: userQualities }));
         history.push(`/users/${data._id}`);
     };
     const transformData = (data) => {

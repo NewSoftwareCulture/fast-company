@@ -2,7 +2,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import configFile from "../config.json";
-import { httpAuth } from "../hooks/useAuth";
+import authService from "./auth.service";
 import { getAccessToken, getRefreshToken, getExpiresDateToken, setTokens } from "./localStorage.service";
 
 const http = axios.create({
@@ -27,10 +27,7 @@ http.interceptors.request.use(
             const refreshToken = getRefreshToken();
 
             if (refreshToken && expiresDate < Date.now) {
-                const { data } = await httpSecure.post("token", {
-                    grant_type: "refresh_token",
-                    refresh_token: refreshToken
-                });
+                const data = await authService.refresh();
                 setTokens({
                     refreshToken: data.refresh_token,
                     idToken: data.id_token,
